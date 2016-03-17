@@ -1,0 +1,91 @@
+<html>
+	<head>
+		<title>Exemplo</title>
+		<style type="text/css">
+			.loading{
+				display: none;
+			}
+
+			.form{
+				padding: 20px;
+			}
+
+			.success{
+				padding: 20px;
+				color: green;	
+			}
+
+			.error{
+				padding: 20px;
+				color: red;		
+			}
+		</style>
+	</head>
+	<body>
+		<div class="form" id="form">
+            <form id="form-email">
+              <p><input type="text" id="name" name="name" placeholder="Digite seu nome *" required></p>
+              <p><input type="email" id="email" name="email" placeholder="Digite seu e-mail *" required></p>
+              <p><input type="text" id="subject" name="subject" placeholder="Digite o assunto *" required></p>
+              <p><textarea id="message" name="message" cols="0" rows="0" placeholder="Digite sua mensagem *" required></textarea></p>
+              <p><input type="submit" value="Enviar" id="enviar">
+              <img src="loading.gif" class="loading"></p>
+            </form> 
+		</div>
+		<div id="response">
+		</div>
+	</body>
+	<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+	<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<script type="text/javascript">
+		$('#form-email').on('submit', function(e) {
+			//previne o comportamento padrão que é enviar o formulário
+			e.preventDefault();
+
+			//captura os valores do formulário          
+			var vnome = $('#name').val();
+			var vemail = $('#email').val();
+			var vassunto = $('#subject').val();
+			var vmsg = $('#message').val();
+			var heightForm = $("#form").height();
+
+			//armazena os valores dentro de uma variavel json
+			post_data = {
+			'user_name' : vnome,
+			'user_email' : vemail,
+			'subject' : vassunto, 
+			'msg' : vmsg
+			};
+
+		  	//mostra o GIF animado de loading(item 4)
+	  		$('.loading').fadeIn('fast');
+
+		  	// requisição ajax passando os parametros do formulário para o php
+		  	$.post('sendEmail.php', post_data, function(response){  
+		   
+			  	//tira o GIF animado da tela apos a resposta do php
+			   	$('.loading').fadeOut('fast');
+
+			   	//verifica o tipo da resposta
+			   	if(response.type == 'error'){     
+			    	output = '<div class="error">'+response.text+'</div>';
+			   	}else{
+			    	output = '<div class="success"><p><h3>'+response.text+'</h3><p/></div>';
+			     
+			    	//limpa todos os campos do formulário e o esconde para evidenciar a resposta
+			    	$('#name').val("");
+			    	$('#email').val("");
+			    	$('#subject').val("");
+			    	$('#message').val("");
+			     	$("#form").fadeOut();
+			   	}
+			   	//escreve a resposta na div responsável por mostrar o retorno
+			   	$("#response").html(output);
+			  
+			   	//detalhe em css para manter a div do mesmo tamanho
+			   	$("#response").css("height", heightForm);
+		  	}, 
+		  	'json');
+	  	});
+	</script>
+</html>
